@@ -1,0 +1,11 @@
+
+
+resourceDirectoryPath: D:\Reference\Java\Tesseract\barcoderecognition\src\main\resources\com\auxo\barcoderecognition\uploads
+
+server:
+ applicationConnectors:
+ - type: http
+   port: 8000
+ adminConnectors:
+ - type: http
+   port: 8001
