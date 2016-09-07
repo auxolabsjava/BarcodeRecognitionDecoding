@@ -1,10 +1,8 @@
 package com.auxo.barcoderecognition.utility;
 
 import com.auxo.barcoderecognition.utility.utilityhelpers.LeptonicaImpl;
-import net.sourceforge.lept4j.Leptonica;
-import net.sourceforge.lept4j.Leptonica1;
-import net.sourceforge.lept4j.Pix;
-import net.sourceforge.lept4j.Pixa;
+import com.sun.jna.ptr.PointerByReference;
+import net.sourceforge.lept4j.*;
 import org.bytedeco.javacpp.lept;
 
 import java.io.File;
@@ -21,15 +19,21 @@ public class BarcodeRecognition
 {
     private int barcodeCount = 0;
     private Leptonica leptonica;
+    private int imageWidth;
+    private int imageHeight;
 
     public int extractBarcodes(String imageFilePath, String imageSourcePath)
     {
         Pix sourceImage, pix1, pix2, pix3, pix4, pix5;
-        Pix pixg, pix6, pix7, pix8, pix9;
-        lept.SARRAY saw1, saw2, saw3, sad1, sad2, sad3;
+        Pix pixs , grayImage, pix6, pix7, pix8, pix9;
+        Pix resizeImage;
+//        Sarray sad1;
+//        Sarray sad2;
+//        lept.SARRAY sad3;
         Pixa pixa;
+//        PointerByReference saw1 = new PointerByReference();
+//        PointerByReference saw2 = new PointerByReference();
 
-        saw1 = null;
         File image = new File(imageFilePath);
 
         leptonica = new LeptonicaImpl().getInstance();
@@ -38,21 +42,40 @@ public class BarcodeRecognition
         {
             System.err.print("Image data not available");
         }
-        leptonica.pixWrite( imageSourcePath + "/"+ "source.png", sourceImage, IFF_PNG);
-        leptonica.pixDisplayWrite(sourceImage, 1);
+//        leptonica.pixWrite( imageSourcePath + "/"+ "source.png", sourceImage, IFF_PNG);
+//        leptonica.pixDisplayWrite(sourceImage, 1);
 
-        //sad1 = pixProcessBarcodes(sourceImage, L_BF_ANY, L_USE_WIDTHS, &saw1, 0);
+//        sad1 = pixProcessBarcodes(sourceImage, L_BF_ANY, L_USE_WIDTHS, saw1, 0);
+//        //sarrayWrite("/tmp/junksaw1", saw1);
+//        sarrayWrite("/tmp/junksad1", sad1);
+//
+//        pixRotate180(sourceImage, pixs);
+//        sad2 = pixProcessBarcodes(pixs, L_BF_ANY, L_USE_WIDTHS, saw2, 0);
+//        //sarrayWrite("/tmp/junksaw2", saw2);
+//        sarrayWrite("/tmp/junksad2", sad2);
 
         if ( (pixGetDepth(sourceImage) == 8) ) //&& !pixGetColormap(sourceImage))
         {
-            pixg = pixClone(sourceImage);
+            grayImage = pixClone(sourceImage);
         }
         else
-            pixg = pixConvertTo8(sourceImage, 0);
+            grayImage = pixConvertTo8(sourceImage, 0);
 
-        int countBar = 0;
-        pixa = pixExtractBarcodes(pixg, countBar);
+//        leptonica.pixWrite( imageSourcePath + "/"+ "8bit.png", grayImage, IFF_PNG);
+//        leptonica.pixDisplayWrite(grayImage, 1);
 
+        imageWidth = pixGetWidth(grayImage);
+        imageHeight = pixGetHeight(grayImage);
+
+        if ( imageHeight > 1650 && imageWidth > 1275 )
+            resizeImage = pixCreateHeader(1275,1650,8);
+        else
+            resizeImage = grayImage;
+        leptonica.pixWrite( imageSourcePath + "/"+ "resize.png", resizeImage, IFF_PNG);
+
+        // Apply Erotion
+        Pix erodeImage = pixErodeGray(resizeImage, 3, 3);
+        leptonica.pixWrite( imageSourcePath + "/"+ "erode.png", erodeImage, IFF_PNG);
 
         return barcodeCount;
     }
