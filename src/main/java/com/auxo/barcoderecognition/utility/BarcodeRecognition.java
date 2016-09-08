@@ -74,8 +74,11 @@ public class BarcodeRecognition
         leptonica.pixWrite( imageSourcePath + "/"+ "resize.png", resizeImage, IFF_PNG);
 
         // Apply Erotion
-        Pix erodeImage = pixErodeGray(resizeImage, 3, 3);
-        leptonica.pixWrite( imageSourcePath + "/"+ "erode.png", erodeImage, IFF_PNG);
+        //Pix erodeImage = pixErodeGray(resizeImage, 3, 3);
+        //leptonica.pixWrite( imageSourcePath + "/"+ "erode.png", erodeImage, IFF_PNG);
+
+        Pix erodeImage = pixMorphCompSequence(resizeImage,"o25 + c1 + e1",2);
+        leptonica.pixWrite(imageSourcePath + "/" + "oce.png", erodeImage, IFF_PNG);
 
         return barcodeCount;
     }
